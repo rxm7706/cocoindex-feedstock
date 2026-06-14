@@ -5,21 +5,23 @@ conda_build:
   error_overlinking: true
 conda_forge_output_validation: true
 workflow_settings:
-  # Scoped to non-Windows: the Azure win artifact-prep task runs `7z a`
-  # on the entire D:\bld work dir, which Rust/tree-sitter builds populate
-  # with Windows winhttp INetCache entries under
-  # AppData\Local\Microsoft\Windows\INetCache\Content.IE5 — restricted
-  # ACLs there cause 7z to exit 1 and the prepare task to fail even
-  # though the .conda artifact was produced. Keep the v8.14.0
-  # pr-artifacts smoke-test workflow on linux + osx where the build
-  # tree is clean.
-  store_build_artifacts:
-    - platform:
-        - linux_64
-        - linux_aarch64
-        - osx_64
-        - osx_arm64
-      value: true
+  # EXPERIMENT (Option A): unscoped — enabled on every platform
+  # including win_64. The Windows INetCache ACL issue (CFE skill G18)
+  # is mitigated at the recipe level via `recipe/recipe.yaml`'s
+  # `build.script.env.LOCALAPPDATA` redirect — wininet writes its IE
+  # cache to `C:\Temp\cocoindex_appdata` instead of inside the
+  # rattler-build work tree, so the post-build 7z archive step
+  # succeeds. If win Azure CI on this branch goes green, this restores
+  # the v8.14.0 `pr-artifacts` smoke-test workflow on all five subdirs
+  # AND validates the LOCALAPPDATA-redirect pattern for any future
+  # Rust+PyO3 feedstock that wants Windows artifacts archived. If win
+  # CI fails the same way as before the LOCALAPPDATA env var was
+  # added, the redirect doesn't work under rattler-build's strict
+  # env-isolation and we revert to the scoped form (G18 workaround
+  # stays). Either outcome is a useful result; the experiment is
+  # opt-in via this separate PR rather than the merged platform
+  # expansion at PR #9.
+  store_build_artifacts: true
 provider:
   linux_aarch64: default
   osx_arm64: default
