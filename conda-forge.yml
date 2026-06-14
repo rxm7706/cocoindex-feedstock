@@ -4,6 +4,11 @@ github:
 conda_build:
   error_overlinking: true
 conda_forge_output_validation: true
+workflow_settings:
+  store_build_artifacts: true
+provider:
+  linux_aarch64: default
+  osx_arm64: default
 bot:
   automerge: true
   inspection: update-grayskull
