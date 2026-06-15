@@ -42,12 +42,14 @@ build:
         else: |
           cargo-bundle-licenses --format yaml --output THIRDPARTY.yml
           ${{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
-  # abi3 matrix collapse — canonical conda-forge pattern (per
-  # tree-sitter-typescript-feedstock, fsspec-rs-feedstock, et al). Cargo.toml
-  # declares pyo3 abi3-py311 so a single CPython-stable-ABI wheel works
-  # across Python ≥3.11. Build once at python_min, ship one artifact per
-  # platform.
-  skip: is_abi3 and not is_python_min
+  # abi3 matrix collapse — rustworkx-feedstock pattern (chosen over the
+  # `is_abi3 and not is_python_min` form used by tree-sitter feedstocks
+  # because conda-smithy mis-aligns the zip-keyed is_python_min flag when
+  # python_min is overridden upward from the pinning's default 3.10).
+  # Cargo.toml declares pyo3 abi3-py311 so a single CPython-stable-ABI wheel
+  # works across Python ≥3.11. Build once at python_min, ship one artifact
+  # per platform.
+  skip: not (match(python, python_min ~ ".*") and is_abi3)
   python:
     version_independent: ${{ is_abi3 }}
 

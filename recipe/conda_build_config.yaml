@@ -1,15 +1,7 @@
 # cocoindex requires Python ≥3.11 (pyproject.toml: requires-python = ">=3.11"
 # + Cargo.toml: pyo3 abi3-py311). Override conda-forge-pinning's default
-# python_min of 3.10 AND pin the variant python axis to a single 3.11 entry,
-# so the abi3 matrix-collapse pattern (skip: is_abi3 and not is_python_min)
-# builds against py3.11 instead of py3.10.
-#
-# Why both `python` and `python_min`: setting only `python_min: "3.11"` makes
-# conda-smithy collapse the matrix correctly (1 .ci_support file per platform)
-# but leaves the `python` variant value at the pinning's first entry (3.10),
-# which then fails at `pip install .` with `cocoindex requires Python >=3.11`.
-# A single-element python list aligned with the new min fixes it.
-python:
-  - 3.11.* *_cpython
+# python_min of 3.10 so the abi3 matrix-collapse skip rule
+# `not (match(python, python_min ~ ".*") and is_abi3)` filters variants
+# against the elevated floor (3.11) instead of the pinning default.
 python_min:
   - "3.11"
