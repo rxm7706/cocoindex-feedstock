@@ -4,7 +4,7 @@ github:
 conda_build:
   error_overlinking: true
 conda_forge_output_validation: true
-workflow_settings:
+# workflow_settings:
   # Scoped to non-Windows: the Azure win artifact-prep task runs `7z a`
   # on the entire D:\bld work dir, which Rust/tree-sitter builds populate
   # with Windows winhttp INetCache entries under
@@ -13,13 +13,13 @@ workflow_settings:
   # though the .conda artifact was produced. Keep the v8.14.0
   # pr-artifacts smoke-test workflow on linux + osx where the build
   # tree is clean.
-  store_build_artifacts:
-    - platform:
-        - linux_64
-        - linux_aarch64
-        - osx_64
-        - osx_arm64
-      value: true
+  # store_build_artifacts:
+  #   - platform:
+  #       - linux_64
+  #       - linux_aarch64
+  #       - osx_64
+  #       - osx_arm64
+  #     value: true
 provider:
   linux_aarch64: default
   osx_arm64: default
