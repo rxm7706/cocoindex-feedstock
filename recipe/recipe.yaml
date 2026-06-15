@@ -13,7 +13,7 @@ source:
   sha256: d2d04f6fc7f3894c3f5b92ff03ae3d6bd410aeb893048ba633c5b5eee9e14f3d
 
 build:
-  number: 1
+  number: 2
   script:
     env:
       # PEP 540 UTF-8 mode — forces Python to use UTF-8 for all I/O
@@ -23,9 +23,10 @@ build:
       # because rattler-build captures pip's stdout and tries to UTF-8
       # decode it; Windows console codepage (cp1252) breaks the decode
       # when cargo/maturin/pip emit non-ASCII characters (license names,
-      # package descriptions, paths with accents). See xorq-datafusion
-      # for the canonical fix pattern.
+      # package descriptions, paths with accents).
       PYTHONUTF8: "1"
+      CARGO_PROFILE_RELEASE_STRIP: symbols
+      CARGO_PROFILE_RELEASE_LTO: fat
       # CARGO_PROFILE_RELEASE_LTO: fat is intentionally NOT set — fat
       # LTO blows past Azure's 6-hour timeout on Windows for Rust+PyO3
       # packages with deep dep graphs (~600 crates incl. tree-sitter ×
@@ -42,6 +43,8 @@ build:
           ${{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
   skip:
     - match(python, "<3.11")
+  python:
+    version_independent: true
 
 requirements:
   build:
